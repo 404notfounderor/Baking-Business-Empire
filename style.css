@@ -857,6 +857,10 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-16);
+  color: var(--game-purple); /* Purple color matching your theme */
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
+}
 }
 
 .avatar {
