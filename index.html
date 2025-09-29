@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweet Bakery Empire - Baking Business Game</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen active">
+        <div class="login-container">
+            <div class="game-title">
+                <h1>🧁 Sweet Bakery Empire</h1>
+                <p>Build your dream bakery and become a baking mogul!</p>
+            </div>
+            <div class="login-card">
+                <h2>Welcome to Your Baking Journey</h2>
+                <p>Sign in with Google to start building your bakery empire!</p>
+                <div id="g_id_onload"
+                     data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                     data-context="signin"
+                     data-ux_mode="popup"
+                     data-callback="handleCredentialResponse"
+                     data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="rectangular"
+                     data-theme="outline"
+                     data-text="signin_with"
+                     data-size="large"
+                     data-logo_alignment="left">
+                </div>
+                <div class="demo-login">
+                    <p>For demo purposes, you can also:</p>
+                    <button class="btn btn--primary" onclick="demoLogin()">Play as Guest</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Equipment Setup Screen -->
+    <div id="setupScreen" class="screen">
+        <div class="setup-container">
+            <div class="setup-header">
+                <div class="user-info">
+                    <img id="userAvatar" src="" alt="User Avatar" class="avatar">
+                    <div>
+                        <h2>Welcome, <span id="userName">Baker</span>!</h2>
+                        <p>Set up your bakery with essential equipment</p>
+                    </div>
+                </div>
+                <div class="balance-display">
+                    <h3>💰 Budget: $<span id="setupBalance">1000</span></h3>
+                </div>
+            </div>
+
+            <div class="setup-content">
+                <div class="equipment-section">
+                    <h3>🛍️ Equipment Store</h3>
+                    <div class="equipment-grid" id="equipmentGrid">
+                        <!-- Equipment items will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="cart-section">
+                    <h3>🛒 Shopping Cart</h3>
+                    <div class="cart-container" id="cartContainer">
+                        <div class="cart-drop-zone" id="cartDropZone">
+                            <p>Drag equipment here to add to cart</p>
+                        </div>
+                    </div>
+                    <div class="cart-summary">
+                        <div class="cart-total">
+                            <strong>Total: $<span id="cartTotal">0</span></strong>
+                        </div>
+                        <button class="btn btn--primary" id="checkoutBtn" disabled onclick="checkoutEquipment()">
+                            Complete Setup
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Game Screen -->
+    <div id="gameScreen" class="screen">
+        <div class="game-container">
+            <div class="game-header">
+                <div class="user-info">
+                    <img id="gameUserAvatar" src="" alt="User Avatar" class="avatar">
+                    <div>
+                        <h2 id="gameUserName">Baker</h2>
+                        <p>Day <span id="currentDay">1</span> (<span id="currentDayOfWeek">Monday</span>) | Week <span id="currentWeek">1</span></p>
+                    </div>
+                </div>
+                <div class="balance-info">
+                    <div class="balance-display">
+                        <h3>💰 Balance: $<span id="gameBalance">0</span></h3>
+                    </div>
+                    <div class="pending-display" id="pendingDisplay">
+                        <h4>⏳ Pending Today: $<span id="pendingProfits">0</span></h4>
+                    </div>
+                </div>
+                <button class="btn btn--outline" onclick="logout()">Logout</button>
+            </div>
+
+            <div class="game-content">
+                <div class="orders-section">
+                    <h3>📋 Today's Orders</h3>
+                    <div class="orders-grid" id="ordersGrid">
+                        <!-- Orders will be populated by JavaScript -->
+                    </div>
+                    <div class="day-actions">
+                        <button class="btn btn--secondary" onclick="generateNewOrders()">Get New Orders</button>
+                        <button class="btn btn--primary" onclick="endDay()" id="endDayBtn">End Day</button>
+                    </div>
+                </div>
+
+                <div class="ingredients-section">
+                    <h3>🥘 Ingredient Store</h3>
+                    <div class="ingredients-grid" id="ingredientsGrid">
+                        <!-- Ingredients will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Modal -->
+    <div id="orderModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalOrderTitle">Order Details</h3>
+                <button class="modal-close" onclick="closeOrderModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="order-info">
+                    <p><strong>Order Value:</strong> $<span id="modalOrderValue">0</span></p>
+                    <p><strong>Required Ingredients:</strong></p>
+                    <div id="modalIngredientsList" class="ingredients-list">
+                        <!-- Required ingredients will be listed here -->
+                    </div>
+                </div>
+                <div class="ingredient-shopping">
+                    <h4>Purchase Ingredients:</h4>
+                    <div id="modalIngredientsGrid" class="modal-ingredients-grid">
+                        <!-- Available ingredients for purchase -->
+                    </div>
+                    <div class="order-summary">
+                        <p><strong>Ingredient Cost:</strong> $<span id="ingredientCost">0</span></p>
+                        <p><strong>Profit:</strong> $<span id="orderProfit">0</span></p>
+                        <p class="profit-note">💡 Profit will be added to pending earnings</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--outline" onclick="closeOrderModal()">Cancel</button>
+                <button class="btn btn--primary" id="fulfillOrderBtn" onclick="fulfillOrder()" disabled>
+                    Fulfill Order
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- End Day Summary Modal -->
+    <div id="endDaySummaryModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📊 Day <span id="endDayNumber">1</span> Complete!</h3>
+            </div>
+            <div class="modal-body">
+                <div class="summary-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Orders Completed Today:</span>
+                        <span class="stat-value" id="dailyOrdersCompleted">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Profits Earned:</span>
+                        <span class="stat-value">$<span id="dailyProfitsEarned">0</span></span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">New Balance:</span>
+                        <span class="stat-value">$<span id="newBalance">0</span></span>
+                    </div>
+                </div>
+                <div class="day-complete-message">
+                    <p>💰 All pending profits have been credited to your balance!</p>
+                    <p>🌅 Get ready for <span id="nextDayOfWeek">Tuesday</span>!</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--primary" onclick="closeEndDaySummary()">Continue to Next Day</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Summary Modal -->
+    <div id="weeklySummaryModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📊 Week <span id="weekNumber">1</span> Summary</h3>
+            </div>
+            <div class="modal-body">
+                <div class="summary-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Orders Completed:</span>
+                        <span class="stat-value" id="ordersCompleted">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Revenue:</span>
+                        <span class="stat-value">$<span id="totalRevenue">0</span></span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Weekly Costs:</span>
+                        <span class="stat-value">-$100</span>
+                    </div>
+                </div>
+                <div class="cost-breakdown">
+                    <h4>Cost Breakdown:</h4>
+                    <ul>
+                        <li>Electricity: $50</li>
+                        <li>Packaging: $30</li>
+                        <li>Maintenance: $20</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--primary" onclick="closeWeeklySummary()">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="gameOverModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>💸 Game Over</h3>
+            </div>
+            <div class="modal-body">
+                <p>Your bakery has run out of money!</p>
+                <div class="final-stats">
+                    <p><strong>Days Survived:</strong> <span id="finalDays">0</span></p>
+                    <p><strong>Orders Completed:</strong> <span id="finalOrders">0</span></p>
+                    <p><strong>Final Balance:</strong> $<span id="finalBalance">0</span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--primary" onclick="restartGame()">Start New Game</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
